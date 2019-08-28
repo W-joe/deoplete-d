@@ -48,8 +48,21 @@ class Source(Base):
         self
 
         if self.vim.vars['deoplete#sources#d#dcd_server_autostart'] == 1 and self.dcd_server_binary() is not None:
-            process = subprocess.Popen([self.dcd_server_binary()])
-            atexit.register(lambda: process.kill())
+            if not self.is_server_running():
+                process = subprocess.Popen([self.dcd_server_binary()])
+                atexit.register(lambda: process.kill())
+
+    def is_server_running(self):
+        result = False
+        if self.dcd_client_binary() is not None:
+            processClient = subprocess.Popen([self.dcd_client_binary(),
+                "--status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            processClient.communicate()
+            if processClient.returncode == None:
+                processClient.wait()
+            if processClient.returncode == 0:
+                result = True
+        return result
 
     def get_complete_position(self, context):
         m = re.search(r'\w*$', context['input'])
