@@ -49,7 +49,8 @@ class Source(Base):
 
         if self.vim.vars['deoplete#sources#d#dcd_server_autostart'] == 1 and self.dcd_server_binary() is not None:
             if not self.is_server_running():
-                process = subprocess.Popen([self.dcd_server_binary()])
+                process = subprocess.Popen([self.dcd_server_binary(),
+                    "--logLevel=off"])
                 atexit.register(lambda: process.kill())
 
     def is_server_running(self):
